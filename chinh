@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PMD Numerology • A4 (Gold/Black)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{ --gold-1:#D4AF37; --gold-2:#F3E7A1; --bg:#0B0E1E; --paper:#0F121E; --line:#2A2F40; --ink:#EADFC2; }
+  *{box-sizing:border-box}
+  html,body{margin:0;color:var(--ink);background:#0E1118;font:12.2px/1.35 Inter,system-ui,-apple-system,Segoe UI,Roboto}
+
+  /* nền nhung + noise */
+  body{
+    background:
+      radial-gradient(900px 540px at 10% 0%, #111827 20%, transparent 60%),
+      radial-gradient(700px 520px at 90% 10%, #0E1426 20%, transparent 60%),
+      linear-gradient(#0c111d,#0b0e1e);
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+    mix-blend-mode:overlay;
+  }
+  .h-serif{font-family:"Cormorant Garamond",serif; letter-spacing:.35px}
+  .gold-grad{background:linear-gradient(90deg,var(--gold-1),var(--gold-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  header.top{background:var(--bg);padding:8px 14px;border-bottom:1px solid #181C28}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .logo{width:28px;height:28px;border:2px solid var(--gold-1);border-radius:50%;display:grid;place-items:center;color:var(--gold-1);font-weight:900;font-size:10px}
+  .brand .t{font-weight:800;letter-spacing:.5px}
+
+  .toolbar{display:flex;gap:8px;align-items:center;padding:8px 14px}
+  input,button,select{padding:6.5px 9px;border-radius:9px;border:1px solid #2B3144;background:#0F1320;color:#EDE7D6;font-size:12.2px}
+  .btn{border:1px solid var(--gold-1);color:var(--gold-1);background:#0F1320;cursor:pointer}
+  .btn:hover{filter:brightness(1.06)}
+  .btn:active{transform:translateY(1px)}
+
+  .sheet-wrap{display:none;justify-content:center;padding:8px}
+  .sheet{
+    width:210mm;height:297mm;background:var(--paper);padding:9mm;border:1px solid #121623;border-radius:10px;
+    box-shadow:0 10px 24px rgba(0,0,0,.35);position:relative;overflow:auto;
+  }
+  .title{margin:0 0 4.5mm 0;font-size:19px}
+  .subtitle{color:#CDBE9A;font-weight:700;margin-bottom:4.5mm;font-size:12.5px}
+
+  .grid{display:grid;gap:5mm}
+  .cols{grid-template-columns:56% 44%}
+
+  /* Panel với thanh tiêu đề trên đầu */
+  .panel,.box{
+    border:1px solid var(--line);border-radius:10px;background:linear-gradient(180deg,#0F1320 0%,#0C101C 100%);
+    box-shadow:0 6px 18px rgba(0,0,0,.20);position:relative;
+  }
+  .panel{padding:5mm 5mm 4.5mm}
+  .panel .headbar{
+    position:sticky;top:-5mm;margin:-5mm -5mm 4mm;border-radius:10px 10px 0 0;
+    padding:6px 10px;background:rgba(212,175,55,.07);border-bottom:1px solid #2A2F40;
+    color:#EAD9B0;font-weight:800;letter-spacing:.6px;text-transform:uppercase;font-size:11.2px
+  }
+  .table{width:100%;border-collapse:collapse}
+  .table tr{border-bottom:1px solid #1E2435}
+  .table td{padding:5px 6px}
+  .table td.k{color:#DCCDAA}
+  .table td.v{text-align:right;font-weight:900}
+
+  .box{padding:4.5mm}
+  .box h3{margin:0 0 3mm 0;color:#CDBE9A;letter-spacing:.35px;font-size:13px}
+
+  /* 3×3 nhỏ gọn */
+  .chart33{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6mm}
+  .cell{border:1px dashed #2A2F40;border-radius:7px;min-height:12.5mm;display:grid;place-items:center;text-align:center;transition:.2s}
+  .cell strong{display:block;color:#C1B187;font-size:9.5px;margin-bottom:1px}
+  .dots{font-size:10.8px;font-weight:900;color:var(--ink);line-height:1}
+  .cell.missing{opacity:.28;filter:saturate(.3)}
+  .cell:not(.missing):hover{box-shadow:0 0 0 1px var(--gold-1) inset}
+
+  .twoBox{display:grid;grid-template-columns:1fr;gap:5mm}
+
+  /* === Tam giác đỉnh cao: IV ở trên III === */
+  .tri{position:relative;height:98mm}
+  .tri .node{
+    position:absolute;width:20mm;height:20mm;border:2px solid var(--gold-1);border-radius:50%;
+    display:grid;place-items:center;background:#0C101C;color:#F0E3BF;font-weight:900
+  }
+  .tri .lbl{position:absolute;color:#CDBE9A;font-size:10.5px}
+  .tri .tag{
+    position:absolute;background:#0C101C;border:1px solid #3A4156;border-radius:6px;
+    padding:1px 6px;font-size:10px;color:#EAD9B0
+  }
+  /* base anchors */
+  .n-left  {left:6mm;             bottom:12mm}
+  .n-mid   {left:calc(50% - 10mm);bottom:12mm}
+  .n-right {right:6mm;            bottom:12mm}
+  /* pinnacles */
+  .p1 {left:calc(25% - 10mm);bottom:34mm}     /* I  */
+  .p2 {right:calc(25% - 10mm);bottom:34mm}    /* II */
+  .p3 {left:calc(50% - 10mm); top:22mm}       /* III */
+  .p4 {left:calc(50% - 10mm); top:4mm}        /* IV  cao nhất */
+  /* edges */
+  .tri .edge{position:absolute;border-top:2px solid #3A4156}
+  .e-base {left:6mm; right:6mm;  bottom:24mm}
+  .e-left {left:18mm;width:32mm;  bottom:40mm;transform:rotate(56deg); transform-origin:left center}
+  .e-right{right:18mm;width:32mm; bottom:40mm;transform:rotate(-56deg);transform-origin:right center}
+
+  .footer{position:absolute;left:0;right:0;bottom:8.5mm;text-align:center;color:#B9AC8E;font-size:11px;letter-spacing:.35px}
+
+  @media print{
+    @page{size:A4;margin:9mm}
+    header.top,.toolbar{display:none}
+    .sheet-wrap{display:block !important}
+    .sheet{border:none;box-shadow:none}
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <div class="logo">PMD</div>
+      <div class="t">PMD Numerology • Gold/Black</div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input id="fullName" placeholder="PHAM MINH DUNG"/>
+    <input id="dob" type="date"/>
+    <select id="gender"><option value="">—</option><option>Nam</option><option>Nữ</option><option>Khác</option></select>
+    <button class="btn" id="calcBtn">Tính</button>
+    <button class="btn" onclick="window.print()">In PDF</button>
+  </div>
+
+  <div class="sheet-wrap" id="sheetWrap">
+    <div class="sheet" id="sheet">
+      <h1 class="title h-serif gold-grad">TỔNG QUAN CÁC CHỈ SỐ</h1>
+      <div class="subtitle" id="owner">—</div>
+
+      <div class="grid cols">
+        <!-- LEFT -->
+        <div>
+          <section class="panel">
+            <div class="headbar">CHỈ SỐ CỐT LÕI</div>
+            <table class="table" id="t-core"></table>
+          </section>
+
+          <section class="panel">
+            <div class="headbar">CHỈ SỐ PHỤ TRỢ</div>
+            <table class="table" id="t-support"></table>
+            <div style="font-size:10.5px;margin-top:4px;color:#9E936F">* Số lặp/bổ sung tính trên họ tên.</div>
+          </section>
+
+          <section class="panel">
+            <div class="headbar">CHỈ SỐ DỰ ĐOÁN</div>
+            <table class="table" id="t-forecast"></table>
+          </section>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="twoBox">
+          <section class="box">
+            <h3 class="h-serif">Biểu đồ HỌ TÊN (3×3)</h3>
+            <div class="chart33" id="chart-name"></div>
+          </section>
+          <section class="box">
+            <h3 class="h-serif">Biểu đồ NGÀY SINH (3×3)</h3>
+            <div class="chart33" id="chart-dob"></div>
+          </section>
+
+          <!-- Tam giác đỉnh cao -->
+          <section class="box" id="triBox">
+            <h3 class="h-serif" style="margin:0 0 6px 0">CÁC CHẶNG ĐƯỜNG ĐỜI (Tam giác đỉnh cao)</h3>
+            <div class="tri">
+              <!-- edges -->
+              <div class="edge e-base"></div><div class="edge e-left"></div><div class="edge e-right"></div>
+
+              <!-- base values -->
+              <div class="node n-left"  id="mVal">—</div> <div class="lbl" style="left:8mm;bottom:0">Tháng sinh</div>
+              <div class="node n-mid"   id="dVal">—</div> <div class="lbl" style="left:calc(50% - 9mm);bottom:0">Ngày sinh</div>
+              <div class="node n-right" id="yVal">—</div> <div class="lbl" style="right:8mm;bottom:0">Năm sinh</div>
+
+              <!-- pinnacles -->
+              <div class="node p1" id="p1Val">—</div><div class="tag" style="left:calc(25% - 3mm);bottom:55mm">I</div>
+              <div class="node p2" id="p2Val">—</div><div class="tag" style="right:calc(25% - 3mm);bottom:55mm">II</div>
+              <div class="node p3" id="p3Val">—</div><div class="tag" style="left:calc(50% + 12mm);top:22mm">III</div>
+              <div class="node p4" id="p4Val">—</div><div class="tag" style="left:calc(50% + 12mm);top:4mm">IV</div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="footer">© PMD • Trang 1</div>
+    </div>
+  </div>
+
+<script>
+/* ====== Tính toán ====== */
+const MAP={A:1,J:1,S:1,B:2,K:2,T:2,C:3,L:3,U:3,D:4,M:4,V:4,E:5,N:5,W:5,F:6,O:6,X:6,G:7,P:7,Y:7,H:8,Q:8,Z:8,I:9,R:9};
+const VOW=new Set(['A','E','I','O','U']);
+const sum=n=>String(n).split('').reduce((a,b)=>a+ +b,0);
+const keepMaster=n=>{n=+n;if([11,22,33].includes(n))return n;while(n>9){n=sum(n);if([11,22,33].includes(n))return n}return n}
+const one=n=>{while(n>9)n=sum(n);return n}
+const clean=s=>s.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/Đ/g,'D').replace(/[^A-Z\s]/g,' ').replace(/\s+/g,' ').trim();
+function isYVowel(name,i){const c=name[i];if(c!=='Y')return false;const p=name[i-1]||' ',n=name[i+1]||' ';const L=/[A-Z]/;const v=x=>VOW.has(x);return L.test(p)&&L.test(n)&&!v(p)&&!v(n)}
+const letters=name=>{const a=[];for(const ch of name){if(/[A-Z]/.test(ch))a.push(MAP[ch]||0)}return a}
+
+function lifePath(d){return keepMaster(d.replace(/-/g,'').split('').reduce((a,b)=>a+ +b,0))}
+function birthDay(d){return keepMaster(new Date(d).getDate())}
+function exprNum(name){return keepMaster(letters(name).reduce((a,b)=>a+b,0))}
+function soulNum(name){let t=0;for(let i=0;i<name.length;i++){const ch=name[i];if(VOW.has(ch)||isYVowel(name,i))t+=MAP[ch]||0}return keepMaster(t)}
+function perNum(name){let t=0;for(let i=0;i<name.length;i++){const ch=name[i];const L=/[A-Z]/.test(ch),yv=isYVowel(name,i);if(L && !(VOW.has(ch)||yv))t+=MAP[ch]||0}return keepMaster(t)}
+function maturity(lp,ex){return keepMaster(lp+ex)}
+function attitude(d){const dt=new Date(d);return keepMaster(dt.getDate()+dt.getMonth()+1)}
+function bridge(a,b){return one(Math.abs(one(a)-one(b)))}
+
+function countsName(name){const c=Array(10).fill(0);for(const ch of name){if(/[A-Z]/.test(ch)){const v=MAP[ch]||0;if(v>=1&&v<=9)c[v]++}}return c}
+function countsDOB(d){const c=Array(10).fill(0);d.replace(/-/g,'').split('').map(Number).forEach(n=>{if(n>=1&&n<=9)c[n]++});return c}
+function miss(c){const m=[];for(let i=1;i<=9;i++)if(c[i]===0)m.push(i);return m}
+function reps(c){const r=[];for(let i=1;i<=9;i++)if(c[i]>1)r.push(`${i}×${c[i]}`);return r}
+function passion(c){let best=1,max=-1;for(let i=1;i<=9;i++){if(c[i]>max){max=c[i];best=i}}return {n:best,c:max}}
+function balance(full){const parts=full.split(' ').filter(Boolean);const t=parts.reduce((a,p)=>a+(MAP[p[0]]||0),0);return one(t||0)}
+function planes(c){return {exp:(c[1]||0)+(c[4]||0)+(c[7]||0), int:(c[2]||0)+(c[5]||0)+(c[8]||0), log:(c[3]||0)+(c[6]||0)+(c[9]||0)}}
+function spiritualScore(o){let s=0;['ex','so','pe','ma'].forEach(k=>{if([11,22,33].includes(o[k]))s++});return s}
+
+function cycles(d){const dt=new Date(d);return [one(dt.getMonth()+1),one(dt.getDate()),one(dt.getFullYear())]}
+function pinnacles(d){const dt=new Date(d),M=one(dt.getMonth()+1),D=one(dt.getDate()),Y=one(dt.getFullYear());
+  const P1=one(M+D),P2=one(D+Y),P3=one(P1+P2),P4=one(M+Y); return [P1,P2,P3,P4]}
+function challenges(d){const dt=new Date(d),M=one(dt.getMonth()+1),D=one(dt.getDate()),Y=one(dt.getFullYear());
+  return [one(Math.abs(M-D)),one(Math.abs(D-Y)),one(Math.abs(one(Math.abs(M-D))-one(Math.abs(D-Y)))),one(Math.abs(M-Y))]}
+function personalYear(d,now=new Date()){const dt=new Date(d);return one(one(dt.getMonth()+1)+one(dt.getDate())+one(now.getFullYear()))}
+function personalMonth(d,now=new Date()){return one(personalYear(d,now)+(now.getMonth()+1))}
+function nextYears(d,how=6){const y=[];const now=new Date();for(let i=0;i<how;i++){const dt=new Date(now.getFullYear()+i, now.getMonth(), now.getDate());y.push(personalYear(d,dt))}return y}
+
+function renderTable(el, rows){el.innerHTML=rows.map(([k,v])=>`<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join('')}
+
+/* === Sửa thứ tự 3×3: 3 6 9 / 2 5 8 / 1 4 7 === */
+function render33(el, c){
+  const order=[3,6,9,2,5,8,1,4,7];
+  el.innerHTML=order.map(n=>{
+    const count=c[n]||0;
+    const cls = count>0 ? '' : 'missing';
+    const dots = count>0 ? '•'.repeat(count) : '';
+    return `<div class="cell ${cls}" title="Số ${n}: ${count} lần"><div><strong>${n}</strong><div class="dots">${dots}</div></div></div>`;
+  }).join('');
+}
+
+/* ===== Interaction ===== */
+const $=id=>document.getElementById(id);
+$('calcBtn').addEventListener('click', ()=>{
+  const raw=$('fullName').value.trim(), dob=$('dob').value;
+  if(!raw || !dob){alert('Nhập HỌ TÊN (không dấu) và NGÀY SINH.');return}
+  const name=clean(raw);
+
+  $('sheetWrap').style.display='flex';
+
+  const lp=lifePath(dob), bd=birthDay(dob), ex=exprNum(name), so=soulNum(name), pe=perNum(name), ma=maturity(lp,ex), att=attitude(dob);
+  const br1=bridge(lp,ex), br2=bridge(so,pe);
+  const cntN=countsName(name), cntD=countsDOB(dob);
+  const pas=passion(cntN), mis=miss(cntN), rep=reps(cntN), bal=balance(name);
+  const pl=planes(cntN), spi=spiritualScore({ex,so,pe,ma});
+  const cyc=cycles(dob), pin=pinnacles(dob), ch=challenges(dob);
+  const pm=personalMonth(dob), next=nextYears(dob,6);
+
+  $('owner').textContent = `${name} • ${new Date(dob).toLocaleDateString('vi-VN')}`;
+
+  renderTable($('t-core'), [
+    ['Đường đời', lp], ['Sứ mệnh', ex], ['Linh hồn', so], ['Ngày sinh', bd],
+    ['Trưởng thành', ma], ['Thái độ', att], ['Nhân cách', pe],
+  ]);
+  renderTable($('t-support'), [
+    ['Kết nối Sứ mệnh', br1], ['Kết nối Linh hồn', br2],
+    ['Số lặp', rep.length?rep.join(', '):'—'],
+    ['Đam mê', `${pas.n} (x${pas.c})`],
+    ['Cân bằng', bal],
+    ['Bổ sung', mis.length?mis.join(', '):'—'],
+    ['Tư duy Trải nghiệm', pl.exp], ['Tư duy Trực giác', pl.int], ['Tư duy Logic', pl.log],
+    ['Tâm linh (Master)', spi],
+  ]);
+  renderTable($('t-forecast'), [
+    ['Chu kì Vòng đời', cyc.join(', ')],
+    ['Đỉnh cao Chặng', pin.join(', ')],
+    ['Thách thức Chặng', ch.join(', ')],
+    ['Năm Cá nhân (6 năm tới)', next.join(', ')],
+    ['Tháng Cá nhân (hiện tại)', pm],
+  ]);
+
+  render33($('chart-name'), cntN);
+  render33($('chart-dob'),  cntD);
+
+  // Tam giác: I, II, III, IV (IV trên III)
+  const dt=new Date(dob),
+        M=one(dt.getMonth()+1), D=one(dt.getDate()), Y=one(dt.getFullYear());
+  const P1=one(M + D);     // I
+  const P2=one(D + Y);     // II
+  const P3=one(P1 + P2);   // III
+  const P4=one(M + Y);     // IV
+
+  $('mVal').textContent = M;
+  $('dVal').textContent = D;
+  $('yVal').textContent = Y;
+
+  $('p1Val').textContent = P1;
+  $('p2Val').textContent = P2;
+  $('p3Val').textContent = P3;
+  $('p4Val').textContent = P4;
+
+  // cuộn tới tam giác để xem đủ phần đỉnh
+  const triBox = document.getElementById('triBox');
+  document.getElementById('sheet').scrollTo({ top: triBox.offsetTop - 10, behavior:'smooth' });
+});
+</script>
+</body>
+</html>
